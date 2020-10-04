@@ -21,7 +21,7 @@ Example
 -------
 ![Example](./example.png)
 
-Source in [example.tex](./example.tex).
+Source in [example.tex](./example.tex). Compiled as a PDF in [example.pdf](./example.pdf).
 
 
 Dependencies
