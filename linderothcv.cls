@@ -51,6 +51,7 @@
 %
 
 \definecolor{heading}{rgb}{0.23, 0.27, 0.29} % ``Arsenic''
+\definecolor{skillbar}{rgb}{0.23, 0.27, 0.29} % ``Arsenic''
 \definecolor{links}{rgb}{0, 0, 0}
 \definecolor{watermark}{rgb}{0.75, 0.75, 0.75}
 
@@ -189,7 +190,7 @@
     \noindent
     {\sffamily\small#1} \\
     \begin{tikzpicture}%
-        \draw[fill=white,heading](0,0) rectangle ({#2},0.3);
+        \draw[fill=white,skillbar](0,0) rectangle ({#2},0.3);
     \end{tikzpicture}
 }
 
