@@ -74,7 +74,7 @@
         \sffamily%
         \color{heading}%
         \fontsize{40pt}{40pt}\selectfont%
-        {\cmdlcv@header@name}
+        {\cmdlcv@header@name}%
     }
     \vspace{1ex}%
 }{%
