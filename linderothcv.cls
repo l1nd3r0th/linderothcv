@@ -2,12 +2,13 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{linderothcv}[2020/09/24 Linderoth CV]
 
+\RequirePackage{xkeyval}
+\RequirePackage{etoolbox}
 \LoadClass[10pt]{article}
 
-\RequirePackage{titlesec}
-\RequirePackage{xkeyval}
+
+\RequirePackage[nostruts]{titlesec}
 \RequirePackage{fontawesome}
-\RequirePackage{etoolbox}
 \RequirePackage[a4paper, top=10mm, bottom=10mm, left=10mm, right=10mm, includehead]{geometry}
 \RequirePackage{calc}
 \RequirePackage{hyperref}
@@ -20,30 +21,58 @@
 \RequirePackage[english]{isodate}
 \isodate
 
+
 %
-% Variable declarations
+% Variable declarations & defaults
 %
 
 % Width of left minipage column, override to your preference,
 % e.g. ``0.33\textwidth''
 \newlength{\LCVleftcolwidth}
-
-% Width of right minipage column, defaults to
-% (\textwidth - \LCVcolspacing - \LCVleftcolwidth)
-\newlength{\LCVrightcolwidth}
+\setlength{\LCVleftcolwidth}{0.33\textwidth}
+\define@key{linderothcv}{leftcolwidth}[0.33\textwidth]{\setlength{\LCVleftcolwidth}{#1}}
 
 % Width of spacing between minipage columns, override to your preference,
 % e.g. ``5mm''
 \newlength{\LCVcolspacing}
+\setlength{\LCVcolspacing}{5mm}
+\define@key{linderothcv}{colspacing}[5mm]{\setlength{\LCVcolspacing}{#1}}
+
+% Width of right minipage column, defaults to fill rest of page width
+\newlength{\LCVrightcolwidth}
+\setlength{\LCVrightcolwidth}{\textwidth - \LCVcolspacing - \LCVleftcolwidth}
 
 % This is the arbitrary (negative) size of a vspace at the top of the column
 % minipages. Its purpose is to remove vertical margin added by the minipage
 % environments that I haven't found another way to remove.
 \newlength{\LCVminipagevspace}
+\setlength{\LCVminipagevspace}{-5mm}
+\define@key{linderothcv}{minipagevspace}[-5mm]{\setlength{\LCVminipagevspace}{#1}}
+
+% Section header spacing, before and after
+\newlength{\LCVsectionprespace}
+\setlength{\LCVsectionprespace}{1ex}
+\define@key{linderothcv}{sectionprespace}[1ex]{\setlength{\LCVsectionprespace}{#1}}
+
+\newlength{\LCVsectionpostspace}
+\setlength{\LCVsectionpostspace}{0.2ex}
+\define@key{linderothcv}{sectionpostspace}[0.2ex]{\setlength{\LCVsectionpostspace}{#1}}
+
+% Paragraph indentation / skip
+\newlength{\LCVparskip}
+\setlength{\LCVparskip}{1ex}
+\define@key{linderothcv}{skip}[1ex]{\setlength{\LCVparskip}{#1}}
+\setlength{\parskip}{\LCVparskip}
+
+\newlength{\LCVparindent}
+\setlength{\LCVparindent}{0em}
+\define@key{linderothcv}{indent}[0em]{\setlength{\LCVparindent}{#1}}
+\setlength{\parindent}{\LCVparindent}
+
+\ProcessOptionsX<linderothcv>
 
 % Temp variables
-\newlength{\LCVtmpparskip}
-\newlength{\LCVtmpparindent}
+\newlength{\LCVtmp}
 
 
 %
@@ -78,7 +107,8 @@
     }
     \vspace{1ex}%
 }{%
-    \vspace{10mm}%
+    \setlength{\LCVtmp}{1.5ex-\LCVparskip}%
+    \vspace{\LCVtmp}%
 }%
 
 
@@ -108,14 +138,14 @@
   {}
   []
 
-\titlespacing*{\section}{0mm}{1.5ex}{0.5ex}
+\titlespacing*{\section}{0mm}{\LCVsectionprespace}{\LCVsectionpostspace}
 
 \titleformat{\subsection}
   {\sffamily\large\scshape\raggedright}
   {}{0mm}
   {}
 
-\titlespacing*{\subsection}{0mm}{1.5ex}{0.5ex}
+\titlespacing*{\subsection}{0mm}{\LCVsectionprespace}{\LCVsectionpostspace}
 
 
 %% Main job item macro \lcvjob
@@ -128,13 +158,11 @@
 \newcommand{\lcvjob}[1]{
     \setkeys{cvitem}{#1}
     \subsection[\LCVIposition]{%
-        \LCVIposition \\
-        {%
+        \LCVIposition\\[0ex]%
         \LCVIcompany%
         \hspace{2em}\ifdefvoid\LCVIlocation{}{\normalsize\faMapMarker~\LCVIlocation}%
         \hfill%
         {\normalsize\LCVIfrom\ifdefvoid\LCVIto{}{--\LCVIto}}%
-        }%
     }%
     \def\LCVIcompany{}
     \def\LCVIfrom{}
@@ -148,21 +176,17 @@
 
 \define@cmdkey[lcv]{itemize}{columns}{}
 
+\newlength{\LCVtmpparskipp}
 \newenvironment{lcvitemize}[1][columns=3]{
     \setkeys[lcv]{itemize}{#1}%
-    \setlength{\LCVtmpparskip}{\parskip}
-    \setlength{\LCVtmpparindent}{\parindent}
     \setlength{\multicolsep}{1ex}
     \noindent
     \sffamily\small%
     \begin{multicols}{\cmdlcv@itemize@columns}
-        \setlength{\parskip}{0pt}
         \begin{itemize}[noitemsep, leftmargin=0mm, rightmargin=0mm, topsep=0mm, partopsep=0mm]
 }{%
-    \end{itemize}
-    \end{multicols}
-    \setlength{\parskip}{\LCVtmpparskip}
-    \setlength{\parindent}{\LCVtmpparindent}
+    \end{itemize}%
+    \end{multicols}%
 }%
 
 
@@ -179,8 +203,8 @@
 %% Horizontal Pair \lcvpair
 
 \newcommand{\lcvpair}[2]{%
-    \par\noindent
-    {\sffamily\scshape{\large #1} \hfill {\normalsize #2}}
+    \noindent%
+    {\sffamily\scshape{\large #1} \hfill {\normalsize #2}}%
 }%
 
 
@@ -199,20 +223,13 @@
 % Columns / minipages
 %
 
-\setlength{\LCVcolspacing}{5mm}
-\setlength{\LCVleftcolwidth}{0.33\textwidth}
-\setlength{\LCVrightcolwidth}{\textwidth - \LCVcolspacing - \LCVleftcolwidth}
-\setlength{\LCVminipagevspace}{0ex-\parskip-6ex}
-
-\setlength{\LCVtmpparskip}{\parskip}
-\setlength{\LCVtmpparindent}{\parindent}
 
 
 \newenvironment{lcvleftcolumn}{%
-    \noindent
-    \begin{minipage}[t]{\LCVleftcolwidth}
-    \setlength{\parskip}{\LCVtmpparskip}
-    \setlength{\parindent}{\LCVtmpparindent}
+    \noindent%
+    \begin{minipage}[t]{\LCVleftcolwidth}%
+    \setlength{\parskip}{\LCVparskip}%
+    \setlength{\parindent}{\LCVparindent}%
     ~\vspace{\LCVminipagevspace}%
 }{%
     \end{minipage}%
@@ -220,10 +237,10 @@
 }
 
 \newenvironment{lcvrightcolumn}{%
-    \noindent
-    \begin{minipage}[t]{\LCVrightcolwidth}
-    \setlength{\parskip}{\LCVtmpparskip}
-    \setlength{\parindent}{\LCVtmpparindent}
+    \noindent%
+    \begin{minipage}[t]{\LCVrightcolwidth}%
+    \setlength{\parskip}{\LCVparskip}%
+    \setlength{\parindent}{\LCVparindent}%
     ~\vspace{\LCVminipagevspace}%
 }{%
     \end{minipage}%
